@@ -1,13 +1,98 @@
-import UserCount from 'components/UserCount'
-import { Suspense } from 'preact/compat'
+import { useState } from 'react'
 
-export default function () {
+const ZoraAllocationChecker = () => {
+  const [address, setAddress] = useState('')
+  const [allocation, setAllocation] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const checkAllocation = async () => {
+    if (!address) {
+      setError('Please enter a wallet address')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    setAllocation(null)
+
+    try {
+      const response = await fetch('https://api.zora.co/universal/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `
+            query graph {
+              zoraTokenAllocation(identifierWalletAddresses: "${address}") {
+                totalTokensEarned {
+                  totalTokens
+                }
+              }
+            }
+          `,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.errors) {
+        throw new Error(data.errors[0]?.message || 'Error fetching allocation')
+      }
+
+      setAllocation(
+        data.data?.zoraTokenAllocation?.totalTokensEarned?.totalTokens || 0
+      )
+    } catch (err) {
+      setError(err.message || 'Failed to fetch allocation')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className="container prose mx-auto max-w-prose p-10">
-      <h1>Frontend template</h1>
-      <Suspense fallback={<p>Loading...</p>}>
-        <UserCount />
-      </Suspense>
+    <div className="flex flex-col items-center gap-6 w-full max-w-md mx-auto p-6 bg-gray-50 rounded-lg shadow">
+      <h1 className="text-2xl font-bold text-gray-800">
+        Zora Allocation Checker
+      </h1>
+
+      <div className="w-full">
+        <input
+          type="text"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Enter wallet address (0x...)"
+          className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <button
+        onClick={checkAllocation}
+        disabled={loading}
+        className="w-full bg-blue-600 text-white py-3 rounded font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+      >
+        {loading ? 'Checking...' : 'Check Allocation'}
+      </button>
+
+      {error && (
+        <div className="w-full p-3 bg-red-100 border border-red-300 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+
+      {allocation !== null && (
+        <div className="w-full flex flex-col items-center p-4 bg-green-100 border border-green-300 text-green-800 rounded">
+          <p className="text-sm font-medium">ZORA Tokens Allocation</p>
+          <p className="text-2xl font-bold">
+            {Number(allocation).toLocaleString(undefined, {
+              maximumFractionDigits: 4,
+            })}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
+
+export default ZoraAllocationChecker

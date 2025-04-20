@@ -52,10 +52,16 @@ const ZoraAllocationChecker = () => {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 w-full max-w-md mx-auto p-6 bg-gray-50 rounded-lg shadow">
+    <div className="flex flex-col items-center gap-6 w-full max-w-xl mx-auto p-6 bg-gray-50 rounded-lg shadow">
       <h1 className="text-2xl font-bold text-gray-800">
         Zora Allocation Checker
       </h1>
+
+      <div className="text-center text-sm text-red-500 font-medium mb-2">
+        DISCLAIMER: This is an unofficial tool and not created by the Zora team.
+        This only queries a public API endpoint and no allocations are
+        guaranteed.
+      </div>
 
       <div className="w-full">
         <input
@@ -91,6 +97,18 @@ const ZoraAllocationChecker = () => {
           </p>
         </div>
       )}
+
+      <div className="mt-4 p-4 bg-gray-100 border border-gray-300 rounded text-sm">
+        <div>
+          <h3 className="font-bold mb-2">Important Notes:</h3>
+          <ul className="list-disc pl-5 text-gray-700 space-y-1">
+            <li>These are NOT final allocations</li>
+            <li>First snapshot data only</li>
+            <li>Doesn't include Zorbs and other activities</li>
+            <li>More updates expected in coming days</li>
+          </ul>
+        </div>
+      </div>
     </div>
   )
 }

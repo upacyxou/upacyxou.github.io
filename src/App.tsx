@@ -67,7 +67,9 @@ const ZoraAllocationChecker = () => {
         <input
           type="text"
           value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          onChange={(e) =>
+            setAddress((e.target as HTMLInputElement)?.value || '')
+          }
           placeholder="Enter wallet address (0x...)"
           className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
